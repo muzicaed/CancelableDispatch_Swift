@@ -13,9 +13,7 @@ let notPrintBlock = CancelableDispatch.delayBlock(3.0, closure: {
   println("But... where did I go? 😢")
 })
 
-if let block = notPrintBlock {
-	CancelableDispatch.cancelDelay(block)
-}
+CancelableDispatch.cancelDelay(block)
 ```
 
 ### Enyoy!
