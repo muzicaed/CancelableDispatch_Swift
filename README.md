@@ -14,7 +14,7 @@ let notPrintBlock = CancelableDispatch.delayBlock(3.0, closure: {
 })
 
 if let block = notPrintBlock {
-  block(cancel: true)
+	CancelableDispatch.cancelDelay(block)
 }
 ```
 
