@@ -1,4 +1,21 @@
-dispatch_cancelable_block
-=========================
+# Cancelable delayed closures in Swift
 
-Please read http://sebastienthiebaud.us/blog/ios/gcd/block/2014/04/09/diggint-into-gcd-1-cancel-dispatch-after.html
+A Swift port of SebastienThiebaud's dispatch_cancelable_block.
+https://github.com/SebastienThiebaud/dispatch_cancelable_block
+
+
+## Usages
+```
+let printBlock = CancelableDispatch.delayBlock(3.0, closure: {
+  println("I am printed! 😍")
+})
+let notPrintBlock = CancelableDispatch.delayBlock(3.0, closure: {
+  println("But... where did I go? 😢")
+})
+
+if let block = notPrintBlock {
+  block(cancel: true)
+}
+```
+
+### Enyoy!
