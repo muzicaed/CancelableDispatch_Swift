@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias dispatchCancelableClosure = (cancel : Bool) -> Void
+typealias dispatchCancelableClosure = (_ cancel : Bool) -> Void
 
 /**
 * Port of Sebastien Thiebaud's objC dispatch_cancelable_block
@@ -27,17 +27,16 @@ class CancelableDispatch {
   * Schedules execution of a code block (closure) and offers
   * a possibility to cancel execution.
   */
-  class func delayBlock(time: NSTimeInterval, closure: () -> Void) -> dispatchCancelableClosure? {
-    var closure: dispatch_block_t? = closure
+  class func delayBlock(_ time: TimeInterval, closure: @escaping () -> Void) -> dispatchCancelableClosure? {
+    let closure: ()->()? = closure
     var cancelableClosure: dispatchCancelableClosure?
     
     let delayedClosure: dispatchCancelableClosure = { (cancel) in
-      if let closure = closure {
         if (cancel == false) {
-          dispatch_async(dispatch_get_main_queue(), closure);
+            DispatchQueue.main.async {
+                closure()
+            }
         }
-      }
-      closure = nil
       cancelableClosure = nil
     }
     
@@ -45,7 +44,7 @@ class CancelableDispatch {
     
     CancelableDispatch.dispatchLater(time) {
       if let delayedClosure = cancelableClosure {
-        delayedClosure(cancel: false)
+        delayedClosure(false)
       }
     }
     
@@ -55,18 +54,14 @@ class CancelableDispatch {
   /**
   * Cancel a already sheduled execution.
   */
-  class func cancelDelay(closure: dispatchCancelableClosure?) {
+  class func cancelDelay(_ closure: dispatchCancelableClosure?) {
     if let closure = closure {
-      closure(cancel: true)
+      closure(true)
     }
   }
   
-  private class func dispatchLater(time: NSTimeInterval, closure: () -> Void) {
-    dispatch_after(
-      dispatch_time(
-        DISPATCH_TIME_NOW,
-        Int64(time * Double(NSEC_PER_SEC))
-      ),
-      dispatch_get_main_queue(), closure)
+  fileprivate class func dispatchLater(_ time: TimeInterval, closure: @escaping () -> Void) {
+    DispatchQueue.main.asyncAfter(
+      deadline: DispatchTime.now() + Double(Int64(time * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: closure)
   }
 }
